@@ -1,0 +1,14 @@
+# AndroidやiOSのネイティブコードを除外
+android/** linguist-vendored
+ios/** linguist-vendored
+
+# ビルドファイルや一時ファイルを除外
+build/** linguist-vendored
+pubspec.lock linguist-vendored
+
+# 一般的な設定ファイルを除外
+*.yaml linguist-vendored
+*.json linguist-vendored
+*.gradle linguist-vendored
+*.xml linguist-vendored
+*.plist linguist-vendored
