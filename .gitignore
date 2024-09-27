@@ -1,38 +1,37 @@
-# Dart/Flutter関連
+# Dartの依存パッケージのキャッシュを無視
 .dart_tool/
-.packages
+
+# ビルドファイルを無視
 build/
-pubspec.lock
-.flutter-plugins
-.flutter-plugins-dependencies
-.idea/
 
-# macOS関連ファイル
-.DS_Store
-
-# Android関連ファイル
-.android/
-gradle/
-app/build/
-
-# iOS関連ファイル
-ios/Flutter/App.framework
-ios/Flutter/Flutter.framework
+# iOSビルド関連のキャッシュと設定ファイルを無視
 ios/Pods/
 ios/.symlinks/
+ios/Flutter/Flutter.framework/
 ios/Flutter/Flutter.podspec
+ios/Flutter/Debug.xcconfig
+ios/Flutter/Release.xcconfig
+ios/Flutter/AppFrameworkInfo.plist
 ios/Flutter/Generated.xcconfig
-ios/ServiceDefinitions.json
 
-# Web関連ファイル
-web/
+# Androidビルド関連のキャッシュと設定ファイルを無視
+android/.gradle/
+android/app/build/
 
-# Windows関連ファイル
-windows/
+# VSCodeの設定を無視
+.vscode/
 
-# Linux関連ファイル
-linux/
+# macOSのFinder設定を無視
+.DS_Store
 
-# その他のOS関連のファイル
-.macos/
-test/
+# テスト結果を無視
+coverage/
+
+# パッケージのロックファイルを無視
+pubspec.lock
+
+# その他のOSやIDE固有のファイルを無視
+.idea/
+*.iml
+*.ipr
+*.iws
