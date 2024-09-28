@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'team_name_screen.dart';
+import 'score_screen.dart';
 
 class TeamSelectionScreen extends StatefulWidget {
+  final bool enableDisqualification;  // 失格機能の状態を受け取る
+
+  TeamSelectionScreen({required this.enableDisqualification});
+
   @override
   _TeamSelectionScreenState createState() => _TeamSelectionScreenState();
 }
@@ -9,7 +14,6 @@ class TeamSelectionScreen extends StatefulWidget {
 class _TeamSelectionScreenState extends State<TeamSelectionScreen> {
   final TextEditingController _teamCountController = TextEditingController();
   String _errorMessage = '';
-  bool _enableDisqualification = true;  // 失格機能のトグル状態
 
   @override
   void dispose() {
@@ -17,15 +21,27 @@ class _TeamSelectionScreenState extends State<TeamSelectionScreen> {
     super.dispose();
   }
 
-  void _navigateToTeamNameScreen(BuildContext context) {
+  void _navigateToNextScreen(BuildContext context) {
     int? teamCount = int.tryParse(_teamCountController.text);
-    if (teamCount != null && teamCount > 0) {
+    if (teamCount != null && teamCount > 1) {
+      // 複数人モードの場合、チーム名入力画面へ遷移
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => TeamNameScreen(
             teamCount: teamCount,
-            enableDisqualification: _enableDisqualification,  // トグルボタンの状態を渡す
+            enableDisqualification: widget.enableDisqualification,  // ゲームモード画面からの状態を渡す
+          ),
+        ),
+      );
+    } else if (teamCount == 1) {
+      // 一人モードの場合、直接スコア画面へ遷移
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ScoreScreen(
+            teamNames: ['Player 1'],  // 一人用のデフォルトチーム名
+            enableDisqualification: widget.enableDisqualification,  // ゲームモード画面からの状態を渡す
           ),
         ),
       );
@@ -66,26 +82,8 @@ class _TeamSelectionScreenState extends State<TeamSelectionScreen> {
                   style: TextStyle(color: Colors.red, fontSize: 18),
                 ),
               SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    _enableDisqualification ? '失格モード有効' : '失格モード無効',  // トグルに応じたテキスト
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  Switch(
-                    value: _enableDisqualification,
-                    onChanged: (value) {
-                      setState(() {
-                        _enableDisqualification = value;
-                      });
-                    },
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () => _navigateToTeamNameScreen(context),
+                onPressed: () => _navigateToNextScreen(context),
                 child: Text('次へ', style: TextStyle(fontSize: 24)),
               ),
             ],

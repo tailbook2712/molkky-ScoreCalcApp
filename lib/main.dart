@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/team_selection_screen.dart';
+import 'package:mollky_score_app/screens/gamemode_selection_screen.dart';
 
 void main() => runApp(MolkkyApp());
 
@@ -8,7 +8,7 @@ class MolkkyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Mölkky Score App',
-      home: TeamSelectionScreen(),  // チーム人数選択画面を最初に表示
+      home: (GameModeSelectionScreen()),  // チーム人数選択画面を最初に表示
     );
   }
 }
