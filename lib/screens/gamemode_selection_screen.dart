@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
-import 'score_screen.dart';  // スコア画面を直接呼び出す
-import 'team_selection_screen.dart';  // 複数人モードのための画面を呼び出す
+import 'score_screen.dart';
+import 'team_selection_screen.dart';
 
-class GameModeSelectionScreen extends StatelessWidget {
+class GameModeSelectionScreen extends StatefulWidget {
+  @override
+  _GameModeSelectionScreenState createState() => _GameModeSelectionScreenState();
+}
+
+class _GameModeSelectionScreenState extends State<GameModeSelectionScreen> {
+  bool _enableDisqualification = true;  // 失格モードのトグル状態
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,15 +22,34 @@ class GameModeSelectionScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // 失格モードのトグルスイッチ
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _enableDisqualification ? '失格モード有効' : '失格モード無効',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  Switch(
+                    value: _enableDisqualification,
+                    onChanged: (value) {
+                      setState(() {
+                        _enableDisqualification = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  // 一人モード：チーム名入力を省略してスコア画面へ遷移
+                  // 一人モード：スコア画面へ遷移
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ScoreScreen(
                         teamNames: ['Player 1'],  // 一人用のデフォルトチーム名
-                        enableDisqualification: true,  // 失格モードの初期状態
+                        enableDisqualification: _enableDisqualification,  // 失格モードの状態を渡す
                       ),
                     ),
                   );
@@ -33,11 +59,13 @@ class GameModeSelectionScreen extends StatelessWidget {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  // 複数人モード：チーム選択画面に遷移
+                  // 複数人モード：チーム選択画面へ遷移
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => TeamSelectionScreen(),
+                      builder: (context) => TeamSelectionScreen(
+                        enableDisqualification: _enableDisqualification,  // トグルの状態を渡す
+                      ),
                     ),
                   );
                 },

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/player.dart';
-import 'team_selection_screen.dart';
 
 class ScoreScreen extends StatefulWidget {
   final List<String> teamNames;
@@ -121,13 +120,13 @@ class _ScoreScreenState extends State<ScoreScreen> {
                 Navigator.of(context).pop();
                 _resetScores();
               },
-              child: Text('もう一度', style: TextStyle(fontSize: 24)),
+              child: Text('もう一度', style: TextStyle(fontSize: 20)),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).popUntil((route) => route.isFirst);
               },
-              child: Text('チーム人数選択へ戻る', style: TextStyle(fontSize: 24)),
+              child: Text('ゲームモード選択へ戻る', style: TextStyle(fontSize: 20)),
             ),
           ],
         );
