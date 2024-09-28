@@ -4,8 +4,8 @@ import 'team_selection_screen.dart';
 
 class ScoreScreen extends StatefulWidget {
   final List<String> teamNames;
-
-  ScoreScreen({required this.teamNames});
+  final bool enableDisqualification;  // 失格機能の状態を受け取る
+  ScoreScreen({required this.teamNames, required bool this.enableDisqualification});
 
   @override
   _ScoreScreenState createState() => _ScoreScreenState();
@@ -44,8 +44,10 @@ class _ScoreScreenState extends State<ScoreScreen> {
     // ダイアログを閉じる
     Navigator.of(context).pop();
 
-    // 失格の判定を得点の更新後に行う
-    _checkForDisqualification(index);
+    // 失格機能が有効な場合のみ失格の判定を行う
+    if (widget.enableDisqualification) {
+      _checkForDisqualification(index);
+    }
     
     // 勝利条件の確認
     _checkForWinner(players[index]);
