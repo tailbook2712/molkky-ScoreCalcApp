@@ -9,6 +9,7 @@ class TeamSelectionScreen extends StatefulWidget {
 class _TeamSelectionScreenState extends State<TeamSelectionScreen> {
   final TextEditingController _teamCountController = TextEditingController();
   String _errorMessage = '';
+  bool _enableDisqualification = true;  // 失格機能のトグル状態
 
   @override
   void dispose() {
@@ -19,15 +20,16 @@ class _TeamSelectionScreenState extends State<TeamSelectionScreen> {
   void _navigateToTeamNameScreen(BuildContext context) {
     int? teamCount = int.tryParse(_teamCountController.text);
     if (teamCount != null && teamCount > 0) {
-      // チーム人数が入力されたら、チーム名入力画面に遷移
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => TeamNameScreen(teamCount: teamCount),
+          builder: (context) => TeamNameScreen(
+            teamCount: teamCount,
+            enableDisqualification: _enableDisqualification,  // トグルボタンの状態を渡す
+          ),
         ),
       );
     } else {
-      // 入力が無効の場合、エラーメッセージを表示
       setState(() {
         _errorMessage = '有効なチーム数を入力してください (1以上の整数)';
       });
@@ -63,6 +65,24 @@ class _TeamSelectionScreenState extends State<TeamSelectionScreen> {
                   _errorMessage,
                   style: TextStyle(color: Colors.red, fontSize: 18),
                 ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _enableDisqualification ? '失格モード有効' : '失格モード無効',  // トグルに応じたテキスト
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  Switch(
+                    value: _enableDisqualification,
+                    onChanged: (value) {
+                      setState(() {
+                        _enableDisqualification = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () => _navigateToTeamNameScreen(context),

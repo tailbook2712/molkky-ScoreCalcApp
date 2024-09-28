@@ -3,8 +3,10 @@ import 'score_screen.dart';
 
 class TeamNameScreen extends StatefulWidget {
   final int teamCount;
+  final bool enableDisqualification;
 
-  TeamNameScreen({required this.teamCount});
+  TeamNameScreen(
+      {required this.teamCount, required this.enableDisqualification});
 
   @override
   _TeamNameScreenState createState() => _TeamNameScreenState();
@@ -30,11 +32,15 @@ class _TeamNameScreenState extends State<TeamNameScreen> {
   }
 
   void _navigateToScoreScreen(BuildContext context) {
-    List<String> teamNames = _teamNameControllers.map((controller) => controller.text).toList();
+    List<String> teamNames =
+        _teamNameControllers.map((controller) => controller.text).toList();
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ScoreScreen(teamNames: teamNames),
+        builder: (context) => ScoreScreen(
+          teamNames: teamNames,
+          enableDisqualification: widget.enableDisqualification,
+        ),
       ),
     );
   }
