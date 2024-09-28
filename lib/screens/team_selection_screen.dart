@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mollky_score_app/screens/score_screen.dart';
 import 'team_name_screen.dart';
 
 class TeamSelectionScreen extends StatefulWidget {
@@ -19,13 +20,24 @@ class _TeamSelectionScreenState extends State<TeamSelectionScreen> {
 
   void _navigateToTeamNameScreen(BuildContext context) {
     int? teamCount = int.tryParse(_teamCountController.text);
-    if (teamCount != null && teamCount > 0) {
+    if (teamCount != null && teamCount > 1) {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => TeamNameScreen(
             teamCount: teamCount,
             enableDisqualification: _enableDisqualification,  // トグルボタンの状態を渡す
+          ),
+        ),
+      );
+    } else if (teamCount == 1) {
+      // チーム数が1の時は一人用モードにスキップしてスコア画面へ
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ScoreScreen(
+            teamNames: ['Player 1'],  // 一人用のデフォルトチーム名
+            enableDisqualification: _enableDisqualification,
           ),
         ),
       );
