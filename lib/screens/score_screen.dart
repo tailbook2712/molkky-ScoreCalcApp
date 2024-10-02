@@ -163,13 +163,104 @@ class _ScoreScreenState extends State<ScoreScreen> {
 
   // スコアが50に達したかどうかを確認
   void _checkForWinner(Player player) {
-    if (player.score >= 50) {
+    if (player.score == 50) {
       _showWinnerDialog(player.name);
     } else if (player.score > 50) {
       setState(() {
         player.score = 25;
       });
     }
+  }
+
+  // スコアを編集するメソッド
+  void _editScore(int playerIndex, int roundIndex) {
+    int currentScore = scoreHistories[playerIndex].scores[roundIndex];
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('スコアを編集', style: TextStyle(fontSize: 24)),
+          content: TextField(
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(hintText: '新しいスコアを入力'),
+            onChanged: (value) {
+              currentScore = int.tryParse(value) ?? currentScore;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('キャンセル', style: TextStyle(fontSize: 24)),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  // スコアを更新
+                  int difference = currentScore - scoreHistories[playerIndex].scores[roundIndex];
+                  players[playerIndex].score += difference;
+                  scoreHistories[playerIndex].scores[roundIndex] = currentScore;
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text('更新', style: TextStyle(fontSize: 24)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // スコアシートを表示するメソッド
+  Widget _buildScoreSheet() {
+    return Table(
+      border: TableBorder.all(),
+      children: [
+        _buildHeaderRow(),
+        ..._buildScoreRows(),
+      ],
+    );
+  }
+
+  // ヘッダー行（プレイヤー名）
+  TableRow _buildHeaderRow() {
+    return TableRow(
+      children: [
+        TableCell(child: Text('ラウンド', style: TextStyle(fontSize: 18), textAlign: TextAlign.center)),
+        ...scoreHistories.map((history) => TableCell(child: Text(history.playerName, style: TextStyle(fontSize: 18), textAlign: TextAlign.center))).toList(),
+      ],
+    );
+  }
+
+  // スコア履歴の各行
+  List<TableRow> _buildScoreRows() {
+    int maxRounds = scoreHistories.map((h) => h.scores.length).reduce((a, b) => a > b ? a : b);
+
+    return List<TableRow>.generate(maxRounds, (roundIndex) {
+      return TableRow(
+        children: [
+          TableCell(child: Text('ラウンド ${roundIndex + 1}', style: TextStyle(fontSize: 16), textAlign: TextAlign.center)),
+          ...scoreHistories.asMap().entries.map((entry) {
+            int playerIndex = entry.key;
+            ScoreHistory history = entry.value;
+            return TableCell(
+              child: GestureDetector(
+                onTap: roundIndex < history.scores.length
+                    ? () => _editScore(playerIndex, roundIndex)  // スコアをタップで編集
+                    : null,
+                child: Text(
+                  roundIndex < history.scores.length ? history.scores[roundIndex].toString() : '',
+                  style: TextStyle(fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            );
+          }).toList(),
+        ],
+      );
+    });
   }
 
   @override
@@ -210,48 +301,6 @@ class _ScoreScreenState extends State<ScoreScreen> {
         ),
       ),
     );
-  }
-
-  Widget _buildScoreSheet() {
-    return Table(
-      border: TableBorder.all(),
-      children: [
-        _buildHeaderRow(),
-        ..._buildScoreRows(),
-      ],
-    );
-  }
-
-  // ヘッダー行（プレイヤー名）
-  TableRow _buildHeaderRow() {
-    return TableRow(
-      children: [
-        TableCell(child: Text('ラウンド', style: TextStyle(fontSize: 18), textAlign: TextAlign.center)),
-        ...scoreHistories.map((history) => TableCell(child: Text(history.playerName, style: TextStyle(fontSize: 18), textAlign: TextAlign.center))).toList(),
-      ],
-    );
-  }
-
-  // スコア履歴の各行
-  List<TableRow> _buildScoreRows() {
-    int maxRounds = scoreHistories.map((h) => h.scores.length).reduce((a, b) => a > b ? a : b);
-
-    return List<TableRow>.generate(maxRounds, (roundIndex) {
-      return TableRow(
-        children: [
-          TableCell(child: Text('ラウンド ${roundIndex + 1}', style: TextStyle(fontSize: 16), textAlign: TextAlign.center)),
-          ...scoreHistories.map((history) {
-            return TableCell(
-              child: Text(
-                roundIndex < history.scores.length ? history.scores[roundIndex].toString() : '',
-                style: TextStyle(fontSize: 16),
-                textAlign: TextAlign.center,
-              ),
-            );
-          }).toList(),
-        ],
-      );
-    });
   }
 
   void _showScoreDialog(int playerIndex) {
