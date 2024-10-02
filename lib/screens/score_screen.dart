@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mollky_score_app/models/score_history.dart';
 import '../models/player.dart';
 
 class ScoreScreen extends StatefulWidget {
   final List<String> teamNames;
   final bool enableDisqualification;  // 失格機能の状態を受け取る
-  ScoreScreen({required this.teamNames, required bool this.enableDisqualification});
+
+  ScoreScreen({required this.teamNames, required this.enableDisqualification});
 
   @override
   _ScoreScreenState createState() => _ScoreScreenState();
@@ -12,6 +14,7 @@ class ScoreScreen extends StatefulWidget {
 
 class _ScoreScreenState extends State<ScoreScreen> {
   List<Player> players = [];
+  List<ScoreHistory> scoreHistories = [];
 
   @override
   void initState() {
@@ -23,6 +26,7 @@ class _ScoreScreenState extends State<ScoreScreen> {
   void _resetScores() {
     setState(() {
       players = widget.teamNames.map((name) => Player(name: name, score: 0, zeroScoreStreak: 0, isDisqualified: false)).toList();
+      scoreHistories = widget.teamNames.map((name) => ScoreHistory(playerName: name)).toList();
     });
   }
 
@@ -38,6 +42,7 @@ class _ScoreScreenState extends State<ScoreScreen> {
       }
 
       players[index].score += score;
+      scoreHistories[index].scores.add(score);  // スコア履歴に追加
     });
 
     // ダイアログを閉じる
@@ -47,7 +52,7 @@ class _ScoreScreenState extends State<ScoreScreen> {
     if (widget.enableDisqualification) {
       _checkForDisqualification(index);
     }
-    
+
     // 勝利条件の確認
     _checkForWinner(players[index]);
   }
@@ -120,13 +125,13 @@ class _ScoreScreenState extends State<ScoreScreen> {
                 Navigator.of(context).pop();
                 _resetScores();
               },
-              child: Text('もう一度', style: TextStyle(fontSize: 20)),
+              child: Text('もう一度', style: TextStyle(fontSize: 24)),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).popUntil((route) => route.isFirst);
               },
-              child: Text('ゲームモード選択へ戻る', style: TextStyle(fontSize: 20)),
+              child: Text('チーム人数選択へ戻る', style: TextStyle(fontSize: 24)),
             ),
           ],
         );
@@ -158,7 +163,7 @@ class _ScoreScreenState extends State<ScoreScreen> {
 
   // スコアが50に達したかどうかを確認
   void _checkForWinner(Player player) {
-    if (player.score == 50) {
+    if (player.score >= 50) {
       _showWinnerDialog(player.name);
     } else if (player.score > 50) {
       setState(() {
@@ -173,10 +178,12 @@ class _ScoreScreenState extends State<ScoreScreen> {
       appBar: AppBar(
         title: Text('Mölkky Score Tracker', style: TextStyle(fontSize: 24)),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
               itemCount: players.length,
               itemBuilder: (context, index) {
                 return ListTile(
@@ -196,10 +203,55 @@ class _ScoreScreenState extends State<ScoreScreen> {
                 );
               },
             ),
-          ),
-        ],
+            SizedBox(height: 20),
+            Text('スコアシート', style: TextStyle(fontSize: 24)),
+            _buildScoreSheet(),  // スコアシートを表示
+          ],
+        ),
       ),
     );
+  }
+
+  Widget _buildScoreSheet() {
+    return Table(
+      border: TableBorder.all(),
+      children: [
+        _buildHeaderRow(),
+        ..._buildScoreRows(),
+      ],
+    );
+  }
+
+  // ヘッダー行（プレイヤー名）
+  TableRow _buildHeaderRow() {
+    return TableRow(
+      children: [
+        TableCell(child: Text('ラウンド', style: TextStyle(fontSize: 18), textAlign: TextAlign.center)),
+        ...scoreHistories.map((history) => TableCell(child: Text(history.playerName, style: TextStyle(fontSize: 18), textAlign: TextAlign.center))).toList(),
+      ],
+    );
+  }
+
+  // スコア履歴の各行
+  List<TableRow> _buildScoreRows() {
+    int maxRounds = scoreHistories.map((h) => h.scores.length).reduce((a, b) => a > b ? a : b);
+
+    return List<TableRow>.generate(maxRounds, (roundIndex) {
+      return TableRow(
+        children: [
+          TableCell(child: Text('ラウンド ${roundIndex + 1}', style: TextStyle(fontSize: 16), textAlign: TextAlign.center)),
+          ...scoreHistories.map((history) {
+            return TableCell(
+              child: Text(
+                roundIndex < history.scores.length ? history.scores[roundIndex].toString() : '',
+                style: TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+            );
+          }).toList(),
+        ],
+      );
+    });
   }
 
   void _showScoreDialog(int playerIndex) {
