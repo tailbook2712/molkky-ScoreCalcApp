@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mollky_score_app/models/score_history.dart';
 import '../models/player.dart';
 import 'package:mollky_score_app/models/history_manager.dart';
+import 'package:intl/intl.dart';
 
 class ScoreScreen extends StatefulWidget {
   final List<String> teamNames;
@@ -125,12 +126,15 @@ class _ScoreScreenState extends State<ScoreScreen> {
       return {
         'name': player.name,
         'score': player.score,
+        'scores': scoreHistories.firstWhere((history) => history.playerName == player.name).scores,  // 各プレイヤーのスコア履歴を追加
       };
     }).toList();
 
+    String formattedDate = DateFormat('yyyy/MM/dd').format(DateTime.now());
+
     Map<String, dynamic> gameData = {
       'players': playerData,
-      'date': DateTime.now().toString(),
+      'date': formattedDate,
     };
 
     await HistoryManager.saveGameHistory(gameData);
@@ -160,7 +164,7 @@ class _ScoreScreenState extends State<ScoreScreen> {
               onPressed: () {
                 Navigator.of(context).popUntil((route) => route.isFirst);
               },
-              child: Text('チーム人数選択へ戻る', style: TextStyle(fontSize: 24)),
+              child: Text('ゲームモード選択に戻る', style: TextStyle(fontSize: 24)),
             ),
           ],
         );

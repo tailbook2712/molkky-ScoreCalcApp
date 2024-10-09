@@ -27,7 +27,7 @@ class HistoryManager {
 
     // List<dynamic> を明示的に List<Map<String, dynamic>> に変換
     List<Map<String, dynamic>> result = historyList.map((item) {
-      return Map<String, dynamic>.from(jsonDecode(item) as Map);  // ここで明示的にキャスト
+      return Map<String, dynamic>.from(jsonDecode(item) as Map);
     }).toList();
 
     return result;

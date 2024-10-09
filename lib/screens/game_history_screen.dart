@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mollky_score_app/models/history_manager.dart';
+import '../models/history_manager.dart';
+import 'game_history_score_detail_screen.dart';
 
 class GameHistoryScreen extends StatefulWidget {
   @override
@@ -16,9 +17,9 @@ class _GameHistoryScreenState extends State<GameHistoryScreen> {
   }
 
   Future<void> _loadGameHistory() async {
-    List history = await HistoryManager.getGameHistory();
+    List<Map<String, dynamic>> history = await HistoryManager.getGameHistory();
     setState(() {
-      gameHistory = history as List<Map<String, dynamic>>;
+      gameHistory = history;
     });
   }
 
@@ -40,6 +41,15 @@ class _GameHistoryScreenState extends State<GameHistoryScreen> {
                 return Text('${player['name']}: ${player['score']} 点', style: TextStyle(fontSize: 16));
               }).toList(),
             ),
+            onTap: () {
+              // スコアシート詳細画面に遷移
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GameHistoryScoreDetailScreen(game: game),  // ゲームのデータを渡す
+                ),
+              );
+            },
           );
         },
       ),
