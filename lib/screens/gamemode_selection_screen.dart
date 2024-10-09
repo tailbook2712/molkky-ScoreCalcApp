@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'game_history_screen.dart';
 import 'score_screen.dart';
 import 'team_selection_screen.dart';
 
@@ -70,6 +71,18 @@ class _GameModeSelectionScreenState extends State<GameModeSelectionScreen> {
                   );
                 },
                 child: Text('複数人で遊ぶ', style: TextStyle(fontSize: 24)),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => GameHistoryScreen(),
+                    ),
+                  );
+                },
+                child: Text('ゲーム履歴を見る', style: TextStyle(fontSize: 20)),
               ),
             ],
           ),
