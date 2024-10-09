@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mollky_score_app/models/score_history.dart';
 import '../models/player.dart';
+import 'package:mollky_score_app/models/history_manager.dart';
+import 'package:intl/intl.dart';
 
 class ScoreScreen extends StatefulWidget {
   final List<String> teamNames;
-  final bool enableDisqualification;  // 失格機能の状態を受け取る
+  final bool enableDisqualification; // 失格機能の状態を受け取る
 
   ScoreScreen({required this.teamNames, required this.enableDisqualification});
 
@@ -25,8 +27,13 @@ class _ScoreScreenState extends State<ScoreScreen> {
   // 得点をリセットして再試合を始める
   void _resetScores() {
     setState(() {
-      players = widget.teamNames.map((name) => Player(name: name, score: 0, zeroScoreStreak: 0, isDisqualified: false)).toList();
-      scoreHistories = widget.teamNames.map((name) => ScoreHistory(playerName: name)).toList();
+      players = widget.teamNames
+          .map((name) => Player(
+              name: name, score: 0, zeroScoreStreak: 0, isDisqualified: false))
+          .toList();
+      scoreHistories = widget.teamNames
+          .map((name) => ScoreHistory(playerName: name))
+          .toList();
     });
   }
 
@@ -38,11 +45,11 @@ class _ScoreScreenState extends State<ScoreScreen> {
       if (score == 0) {
         players[index].zeroScoreStreak += 1;
       } else {
-        players[index].zeroScoreStreak = 0;  // ゼロ以外の得点を取ったらリセット
+        players[index].zeroScoreStreak = 0; // ゼロ以外の得点を取ったらリセット
       }
 
       players[index].score += score;
-      scoreHistories[index].scores.add(score);  // スコア履歴に追加
+      scoreHistories[index].scores.add(score); // スコア履歴に追加
     });
 
     // ダイアログを閉じる
@@ -67,12 +74,12 @@ class _ScoreScreenState extends State<ScoreScreen> {
       // チーム数が1の場合
       if (players.length == 1) {
         _showSinglePlayerDisqualificationDialog(players[index].name);
-      } 
+      }
       // チーム数が2の場合
       else if (players.length == 2) {
         int otherPlayerIndex = (index == 0) ? 1 : 0;
         _showWinnerDialog(players[otherPlayerIndex].name);
-      } 
+      }
       // チーム数が3以上の場合
       else {
         int remainingPlayers = players.where((p) => !p.isDisqualified).length;
@@ -89,18 +96,21 @@ class _ScoreScreenState extends State<ScoreScreen> {
   }
 
   // チームが1の場合の失格ダイアログ
-  Future<void> _showSinglePlayerDisqualificationDialog(String playerName) async {
+  Future<void> _showSinglePlayerDisqualificationDialog(
+      String playerName) async {
     await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('失格！', style: TextStyle(fontSize: 24)),
-          content: Text('$playerName は3回連続でゼロ得点を記録したため失格です。', style: TextStyle(fontSize: 24)),
+          content: Text('$playerName は3回連続でゼロ得点を記録したため失格です。',
+              style: TextStyle(fontSize: 24)),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).popUntil((route) => route.isFirst); // TeamSelectionScreenに戻る
+                Navigator.of(context).popUntil(
+                    (route) => route.isFirst); // TeamSelectionScreenに戻る
               },
               child: Text('OK', style: TextStyle(fontSize: 24)),
             ),
@@ -108,6 +118,29 @@ class _ScoreScreenState extends State<ScoreScreen> {
         );
       },
     );
+  }
+
+  // ゲームが終了した時に履歴を保存
+  void _saveGameHistory() async {
+    List<Map<String, dynamic>> playerData = players.map((player) {
+      return {
+        'name': player.name,
+        'score': player.score,
+        'scores': scoreHistories.firstWhere((history) => history.playerName == player.name).scores,  // 各プレイヤーのスコア履歴を追加
+      };
+    }).toList();
+
+    String formattedDate = DateFormat('yyyy/MM/dd').format(DateTime.now());
+
+    Map<String, dynamic> gameData = {
+      'players': playerData,
+      'date': formattedDate,
+    };
+
+    await HistoryManager.saveGameHistory(gameData);
+    // デバッグ: 保存された履歴を確認
+    List history = await HistoryManager.getGameHistory();
+    print('現在の履歴: $history');
   }
 
   // チームが2の場合の勝利ダイアログ
@@ -131,12 +164,13 @@ class _ScoreScreenState extends State<ScoreScreen> {
               onPressed: () {
                 Navigator.of(context).popUntil((route) => route.isFirst);
               },
-              child: Text('チーム人数選択へ戻る', style: TextStyle(fontSize: 24)),
+              child: Text('ゲームモード選択に戻る', style: TextStyle(fontSize: 24)),
             ),
           ],
         );
       },
     );
+    _saveGameHistory();
   }
 
   // チームが3以上の場合の失格ダイアログ
@@ -147,7 +181,8 @@ class _ScoreScreenState extends State<ScoreScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('失格！', style: TextStyle(fontSize: 24)),
-          content: Text('$playerName は3回連続でゼロ得点を記録したため失格です。', style: TextStyle(fontSize: 24)),
+          content: Text('$playerName は3回連続でゼロ得点を記録したため失格です。',
+              style: TextStyle(fontSize: 24)),
           actions: [
             TextButton(
               onPressed: () {
@@ -199,7 +234,8 @@ class _ScoreScreenState extends State<ScoreScreen> {
               onPressed: () {
                 setState(() {
                   // スコアを更新
-                  int difference = currentScore - scoreHistories[playerIndex].scores[roundIndex];
+                  int difference = currentScore -
+                      scoreHistories[playerIndex].scores[roundIndex];
                   players[playerIndex].score += difference;
                   scoreHistories[playerIndex].scores[roundIndex] = currentScore;
                 });
@@ -228,30 +264,43 @@ class _ScoreScreenState extends State<ScoreScreen> {
   TableRow _buildHeaderRow() {
     return TableRow(
       children: [
-        TableCell(child: Text('ラウンド', style: TextStyle(fontSize: 18), textAlign: TextAlign.center)),
-        ...scoreHistories.map((history) => TableCell(child: Text(history.playerName, style: TextStyle(fontSize: 18), textAlign: TextAlign.center))).toList(),
+        TableCell(
+            child: Text('ラウンド',
+                style: TextStyle(fontSize: 18), textAlign: TextAlign.center)),
+        ...scoreHistories
+            .map((history) => TableCell(
+                child: Text(history.playerName,
+                    style: TextStyle(fontSize: 18),
+                    textAlign: TextAlign.center)))
+            .toList(),
       ],
     );
   }
 
   // スコア履歴の各行
   List<TableRow> _buildScoreRows() {
-    int maxRounds = scoreHistories.map((h) => h.scores.length).reduce((a, b) => a > b ? a : b);
+    int maxRounds = scoreHistories
+        .map((h) => h.scores.length)
+        .reduce((a, b) => a > b ? a : b);
 
     return List<TableRow>.generate(maxRounds, (roundIndex) {
       return TableRow(
         children: [
-          TableCell(child: Text('ラウンド ${roundIndex + 1}', style: TextStyle(fontSize: 16), textAlign: TextAlign.center)),
+          TableCell(
+              child: Text('ラウンド ${roundIndex + 1}',
+                  style: TextStyle(fontSize: 16), textAlign: TextAlign.center)),
           ...scoreHistories.asMap().entries.map((entry) {
             int playerIndex = entry.key;
             ScoreHistory history = entry.value;
             return TableCell(
               child: GestureDetector(
                 onTap: roundIndex < history.scores.length
-                    ? () => _editScore(playerIndex, roundIndex)  // スコアをタップで編集
+                    ? () => _editScore(playerIndex, roundIndex) // スコアをタップで編集
                     : null,
                 child: Text(
-                  roundIndex < history.scores.length ? history.scores[roundIndex].toString() : '',
+                  roundIndex < history.scores.length
+                      ? history.scores[roundIndex].toString()
+                      : '',
                   style: TextStyle(fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
@@ -296,7 +345,7 @@ class _ScoreScreenState extends State<ScoreScreen> {
             ),
             SizedBox(height: 20),
             Text('スコアシート', style: TextStyle(fontSize: 24)),
-            _buildScoreSheet(),  // スコアシートを表示
+            _buildScoreSheet(), // スコアシートを表示
           ],
         ),
       ),
