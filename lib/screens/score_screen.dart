@@ -322,6 +322,7 @@ class _ScoreScreenState extends State<ScoreScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            SizedBox(height: 20),
             ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
