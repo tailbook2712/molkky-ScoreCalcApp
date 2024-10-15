@@ -145,6 +145,7 @@ class _ScoreScreenState extends State<ScoreScreen> {
 
   // チームが2の場合の勝利ダイアログ
   Future<void> _showWinnerDialog(String winnerName) async {
+    _saveGameHistory();
     await showDialog(
       context: context,
       barrierDismissible: false,
@@ -170,7 +171,7 @@ class _ScoreScreenState extends State<ScoreScreen> {
         );
       },
     );
-    _saveGameHistory();
+    // _saveGameHistory();
   }
 
   // チームが3以上の場合の失格ダイアログ
@@ -321,6 +322,7 @@ class _ScoreScreenState extends State<ScoreScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            SizedBox(height: 20),
             ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
