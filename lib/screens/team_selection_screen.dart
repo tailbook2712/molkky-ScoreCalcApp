@@ -3,7 +3,7 @@ import 'team_name_screen.dart';
 import 'score_screen.dart';
 
 class TeamSelectionScreen extends StatefulWidget {
-  final bool enableDisqualification;  // 失格機能の状態を受け取る
+  final bool enableDisqualification;
 
   TeamSelectionScreen({required this.enableDisqualification});
 
@@ -12,82 +12,92 @@ class TeamSelectionScreen extends StatefulWidget {
 }
 
 class _TeamSelectionScreenState extends State<TeamSelectionScreen> {
-  final TextEditingController _teamCountController = TextEditingController();
-  String _errorMessage = '';
-
-  @override
-  void dispose() {
-    _teamCountController.dispose();
-    super.dispose();
-  }
+  int? _selectedTeamCount; // 選択されたチーム数
 
   void _navigateToNextScreen(BuildContext context) {
-    int? teamCount = int.tryParse(_teamCountController.text);
-    if (teamCount != null && teamCount > 1) {
-      // 複数人モードの場合、チーム名入力画面へ遷移
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => TeamNameScreen(
-            teamCount: teamCount,
-            enableDisqualification: widget.enableDisqualification,  // ゲームモード画面からの状態を渡す
-          ),
-        ),
-      );
-    } else if (teamCount == 1) {
-      // 一人モードの場合、直接スコア画面へ遷移
+    if (_selectedTeamCount == null) return;
+
+    if (_selectedTeamCount == 1) {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => ScoreScreen(
-            teamNames: ['Player 1'],  // 一人用のデフォルトチーム名
-            enableDisqualification: widget.enableDisqualification,  // ゲームモード画面からの状態を渡す
+            teamNames: ['Player 1'],
+            enableDisqualification: widget.enableDisqualification,
           ),
         ),
       );
     } else {
-      setState(() {
-        _errorMessage = '有効なチーム数を入力してください (1以上の整数)';
-      });
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TeamNameScreen(
+            teamCount: _selectedTeamCount!,
+            enableDisqualification: widget.enableDisqualification,
+          ),
+        ),
+      );
     }
+  }
+
+  Widget _buildRadioOption(int teamCount) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Color(0xFFF7F0E8),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.brown.shade100),
+        ),
+        child: RadioListTile<int>(
+          value: teamCount,
+          groupValue: _selectedTeamCount,
+          onChanged: (value) {
+            setState(() {
+              _selectedTeamCount = value;
+            });
+          },
+          title: Text('$teamCount チーム', style: TextStyle(fontSize: 18)),
+          activeColor: Colors.brown,
+          contentPadding: EdgeInsets.symmetric(horizontal: 16),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('チーム人数を選択', style: TextStyle(fontSize: 24)),
+        title: Text('チーム数を選択', style: TextStyle(fontSize: 20)),
+        leading: BackButton(),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('何チームで遊びますか？', style: TextStyle(fontSize: 24)),
-              SizedBox(height: 20),
-              TextField(
-                controller: _teamCountController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'チーム数を入力',
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            SizedBox(height: 20),
+            SizedBox(height: 20),
+            _buildRadioOption(2),
+            _buildRadioOption(3),
+            _buildRadioOption(4),
+            SizedBox(height: 50),
+            SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton(
+                onPressed: _selectedTeamCount != null
+                    ? () => _navigateToNextScreen(context)
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFA4CF64), // 緑色
+                  shape: StadiumBorder(),
+                  elevation: 0,
                 ),
-                style: TextStyle(fontSize: 24),
+                child: Text('次へ', style: TextStyle(fontSize: 20, color: Colors.white)),
               ),
-              SizedBox(height: 10),
-              if (_errorMessage.isNotEmpty)
-                Text(
-                  _errorMessage,
-                  style: TextStyle(color: Colors.red, fontSize: 18),
-                ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () => _navigateToNextScreen(context),
-                child: Text('次へ', style: TextStyle(fontSize: 24)),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
