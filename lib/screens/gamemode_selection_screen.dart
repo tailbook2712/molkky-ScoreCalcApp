@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'game_history_screen.dart';
 import 'score_screen.dart';
 import 'team_selection_screen.dart';
+import '../theme/app_theme.dart';
 
 class GameModeSelectionScreen extends StatefulWidget {
   @override
@@ -9,10 +10,11 @@ class GameModeSelectionScreen extends StatefulWidget {
       _GameModeSelectionScreenState();
 }
 
-class _GameModeSelectionScreenState extends State<GameModeSelectionScreen> with SingleTickerProviderStateMixin {
-  bool _enableDisqualification = true; // 失格モードのトグル状態
-  bool _isFabExpanded = false; // FABが展開されているかどうか
-  late AnimationController _animationController; // FABのアニメーションコントローラー
+class _GameModeSelectionScreenState extends State<GameModeSelectionScreen>
+    with SingleTickerProviderStateMixin {
+  bool _enableDisqualification = true;
+  bool _isFabExpanded = false;
+  late AnimationController _animationController;
 
   @override
   void initState() {
@@ -32,23 +34,21 @@ class _GameModeSelectionScreenState extends State<GameModeSelectionScreen> with 
   void _toggleFab() {
     setState(() {
       _isFabExpanded = !_isFabExpanded;
-      if (_isFabExpanded) {
-        _animationController.forward();
-      } else {
-        _animationController.reverse();
-      }
+      _isFabExpanded
+          ? _animationController.forward()
+          : _animationController.reverse();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFFFCF5),
+      backgroundColor: AppTheme.background,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('何人で遊ぶ？', style: TextStyle(fontSize: 24)),
+            Text('何人で遊ぶ？', style: AppTheme.heading),
             SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -92,10 +92,11 @@ class _GameModeSelectionScreenState extends State<GameModeSelectionScreen> with 
     );
   }
 
-  Widget _buildGameModeButton(
-      {required String label,
-      required IconData icon,
-      required VoidCallback onPressed}) {
+  Widget _buildGameModeButton({
+    required String label,
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
     return Column(
       children: [
         SizedBox(
@@ -106,15 +107,15 @@ class _GameModeSelectionScreenState extends State<GameModeSelectionScreen> with 
             style: ElevatedButton.styleFrom(
               shape: CircleBorder(),
               padding: EdgeInsets.zero,
-              backgroundColor: Color(0xffC2966B).withOpacity(0.5),
+              backgroundColor: AppTheme.secondaryButton,
             ),
             child: Center(
-              child: Icon(icon, size: 90, color: Colors.black),
+              child: Icon(icon, size: 90, color: AppTheme.textDark),
             ),
           ),
         ),
         SizedBox(height: 8),
-        Text(label, style: TextStyle(fontSize: 16)),
+        Text(label, style: AppTheme.label),
       ],
     );
   }
@@ -133,14 +134,14 @@ class _GameModeSelectionScreenState extends State<GameModeSelectionScreen> with 
                   setState(() {
                     _enableDisqualification = !_enableDisqualification;
                   });
-                  _toggleFab(); // FABを閉じる
+                  _toggleFab();
                 },
                 label: Text(
                   _enableDisqualification ? '失格モードを無効' : '失格モードを有効',
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(color: AppTheme.textDark),
                 ),
-                icon: Icon(Icons.toggle_on, color: Colors.black),
-                backgroundColor: Color(0xffC2966B).withOpacity(0.5),
+                icon: Icon(Icons.toggle_on, color: AppTheme.textDark),
+                backgroundColor: AppTheme.secondaryButton.withOpacity(0.5),
               ),
             ),
           ),
@@ -160,10 +161,10 @@ class _GameModeSelectionScreenState extends State<GameModeSelectionScreen> with 
                 },
                 label: Text(
                   'ゲーム履歴を見る',
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(color: AppTheme.textDark),
                 ),
-                icon: Icon(Icons.history, color: Colors.black),
-                backgroundColor: Color(0xffC2966B).withOpacity(0.5),
+                icon: Icon(Icons.history, color: AppTheme.textDark),
+                backgroundColor: AppTheme.secondaryButton.withOpacity(0.5),
               ),
             ),
           ),
@@ -176,9 +177,9 @@ class _GameModeSelectionScreenState extends State<GameModeSelectionScreen> with 
             child: AnimatedIcon(
               icon: AnimatedIcons.menu_close,
               progress: _animationController,
-              color: Colors.black
+              color: AppTheme.textDark,
             ),
-            backgroundColor: Color(0xffC2966B).withOpacity(0.5),
+            backgroundColor: AppTheme.secondaryButton.withOpacity(0.5),
           ),
         ),
       ],
