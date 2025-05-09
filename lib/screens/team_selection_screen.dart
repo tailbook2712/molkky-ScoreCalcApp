@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'team_name_screen.dart';
 import 'score_screen.dart';
+import '../theme/app_theme.dart';
 
 class TeamSelectionScreen extends StatefulWidget {
   final bool enableDisqualification;
@@ -12,7 +13,7 @@ class TeamSelectionScreen extends StatefulWidget {
 }
 
 class _TeamSelectionScreenState extends State<TeamSelectionScreen> {
-  int? _selectedTeamCount; // 選択されたチーム数
+  int? _selectedTeamCount;
 
   void _navigateToNextScreen(BuildContext context) {
     if (_selectedTeamCount == null) return;
@@ -45,7 +46,7 @@ class _TeamSelectionScreenState extends State<TeamSelectionScreen> {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Container(
         decoration: BoxDecoration(
-          color: Color(0xFFF7F0E8),
+          color: AppTheme.secondaryButton.withOpacity(0.2),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.brown.shade100),
         ),
@@ -57,8 +58,8 @@ class _TeamSelectionScreenState extends State<TeamSelectionScreen> {
               _selectedTeamCount = value;
             });
           },
-          title: Text('$teamCount チーム', style: TextStyle(fontSize: 18)),
-          activeColor: Colors.brown,
+          title: Text('$teamCount チーム', style: AppTheme.label),
+          activeColor: AppTheme.accent,
           contentPadding: EdgeInsets.symmetric(horizontal: 16),
         ),
       ),
@@ -68,15 +69,20 @@ class _TeamSelectionScreenState extends State<TeamSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        title: Text('チーム数を選択', style: TextStyle(fontSize: 20)),
+        title: Text('チーム数を選択', style: AppTheme.heading.copyWith(fontSize: 20)),
         leading: BackButton(),
+        backgroundColor: AppTheme.background,
+        elevation: 0,
+        iconTheme: IconThemeData(color: AppTheme.textDark),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
             SizedBox(height: 20),
+            Text('チーム数を選択', style: AppTheme.heading.copyWith(fontSize: 20)),
             SizedBox(height: 20),
             _buildRadioOption(2),
             _buildRadioOption(3),
@@ -90,11 +96,11 @@ class _TeamSelectionScreenState extends State<TeamSelectionScreen> {
                     ? () => _navigateToNextScreen(context)
                     : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFA4CF64), // 緑色
+                  backgroundColor: AppTheme.primaryButton,
                   shape: StadiumBorder(),
                   elevation: 0,
                 ),
-                child: Text('次へ', style: TextStyle(fontSize: 20, color: Colors.white)),
+                child: Text('次へ', style: AppTheme.buttonText),
               ),
             ),
           ],
